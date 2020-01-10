@@ -7,11 +7,13 @@ class OsloModel(object):
     def __init__(self, size, p = 0.5, total_iterations = 50):
         #initialise a system of specified size as np array
         super(OsloModel, self).__init__()
+        self.time = 0
         self.size = size
         self.model = np.zeros(self.size, dtype = int)
         self.critical_slope_prob = p
         self.total_iterations = total_iterations
         self.crit_slopes = np.zeros(self.size, dtype = int)
+        self.dropped_grains = 0
 
         for i in range(self.size):
             self.gen_crit_slope(i)
@@ -19,6 +21,7 @@ class OsloModel(object):
 
     def drive(self):
         self.model[0] += 1
+        self.time += 1
 
         if self.is_unstable(site = 0):
             self.relax(0)
@@ -30,6 +33,8 @@ class OsloModel(object):
         self.model[site] -= 1
         if site != self.size - 1:
             self.model[site + 1] += 1
+        else:
+            self.dropped_grains += 1
 
         self.gen_crit_slope(site)
 
