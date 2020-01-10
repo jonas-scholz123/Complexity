@@ -68,16 +68,12 @@ class OsloModel(object):
             #print("crit slopes: ", self.crit_slopes)
             self.drive()
 
-    def system_is_relaxed(self):
-        self.gen_slopes()
-        differences = self.crit_slopes - self.slopes
-        #print("differences", differences)
-        return(all(differences >= 0))
-
     def gen_slopes(self):
         self.slopes = np.zeros(self.size, dtype = int)
         for i in range(self.size - 1):
             self.slopes[i] = self.model[i] - self.model[i+1]
+        # after last site have 0 grains, slope is equal to model at last site
+        self.slopes[self.size - 1] = self.model[self.size - 1]
 
 
 OM = OsloModel(16)
