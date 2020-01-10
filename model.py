@@ -14,6 +14,8 @@ class OsloModel(object):
         self.total_iterations = total_iterations
         self.crit_slopes = np.zeros(self.size, dtype = int)
         self.dropped_grains = 0
+        self.first_drop_time = None
+        self.height_over_time = []
 
         for i in range(self.size):
             self.gen_crit_slope(i)
@@ -35,6 +37,8 @@ class OsloModel(object):
             self.model[site + 1] += 1
         else:
             self.dropped_grains += 1
+            if not self.first_drop_time:
+                self.first_drop_time = self.time #measures tc
 
         self.gen_crit_slope(site)
 
@@ -62,11 +66,8 @@ class OsloModel(object):
         else:
             return self.model[site] > self.crit_slopes[site]
 
-    def run(self, total_iterations):
-        for i in range(total_iterations):
-            #print("model: ", self.model)
-            #print("crit slopes: ", self.crit_slopes)
-            self.drive()
+    def record_height(self):
+        self.height_over_time.append(self.model[0])
 
     def gen_slopes(self):
         self.slopes = np.zeros(self.size, dtype = int)
@@ -74,6 +75,12 @@ class OsloModel(object):
             self.slopes[i] = self.model[i] - self.model[i+1]
         # after last site have 0 grains, slope is equal to model at last site
         self.slopes[self.size - 1] = self.model[self.size - 1]
+
+    def run(self, total_iterations):
+
+        for i in range(total_iterations):
+            self.record_height()
+            self.drive()
 
 
 OM = OsloModel(16)
