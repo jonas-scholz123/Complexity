@@ -83,10 +83,11 @@ class OsloModel(object):
             self.drive()
 
 
-OM = OsloModel(16)
-OM.run(2000)
-OM.gen_slopes()
+if __name__ == "__main__":
+    OM = OsloModel(16)
+    OM.run(2000)
+    OM.gen_slopes()
 
-print(OM.model)
-print(OM.slopes)
-print(OM.crit_slopes)
+    print(OM.model)
+    print(OM.slopes)
+    print(OM.crit_slopes)
