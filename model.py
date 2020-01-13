@@ -16,24 +16,31 @@ class OsloModel(object):
         self.dropped_grains = 0
         self.first_drop_time = None
         self.height_over_time = []
+        self.avalanche_sizes = []
 
         for i in range(self.size):
             self.gen_crit_slope(i)
 
 
     def drive(self):
+        self.avalanche_size = 0
         self.model[0] += 1
         self.time += 1
 
         if self.is_unstable(site = 0):
             self.relax(0)
+
+        self.avalanche_sizes.append(self.avalanche_size)
         return
 
     def relax(self, site):
-        #print("relaxing site ", site)
+
+        #every time the relax function is called, increment avalanche_size
+        self.avalanche_size += 1
 
         self.model[site] -= 1
         if site != self.size - 1:
+            #if not boundary site, simply move the grain one site to the right
             self.model[site + 1] += 1
         else:
             self.dropped_grains += 1
@@ -50,6 +57,7 @@ class OsloModel(object):
         # first relaxation
         if self.is_unstable(site):
             self.relax(site)
+        return
 
     def gen_crit_slope(self, site):
         rand_val = np.random.uniform()
@@ -82,12 +90,13 @@ class OsloModel(object):
             self.record_height()
             self.drive()
 
+        return
 
 if __name__ == "__main__":
-    OM = OsloModel(16)
-    OM.run(2000)
+    OM = OsloModel(64)
+    OM.run(100000)
     OM.gen_slopes()
 
-    print(OM.model)
-    print(OM.slopes)
-    print(OM.crit_slopes)
+    #print(OM.model)
+    #print(OM.slopes)
+    #print(OM.crit_slopes)
