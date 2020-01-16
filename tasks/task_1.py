@@ -15,6 +15,7 @@ class TestModel(OsloModel):
             assert(self.mass_conservation())
             assert(self.system_is_relaxed())
             self.drive()
+        assert(self.verify_avg_avalanche_size())
 
     def system_is_relaxed(self):
         self.gen_slopes()
@@ -22,6 +23,13 @@ class TestModel(OsloModel):
         #print("differences", differences)
         return(all(differences >= 0))
 
-TM = TestModel(32)
+    def verify_avg_avalanche_size(self):
+        """ Average avalanche size after t_c must be = L"""
+        avg_avalanche_size = np.average(self.avalanche_sizes[self.first_drop_time:])
+        # verify that avg_avalanche_size is approx equal to L by taking their ratio
+        print("avg avalanche size = ", avg_avalanche_size, "L = ", self.size)
+        return abs(avg_avalanche_size/self.size) < 1.02
+
+TM = TestModel(16)
 TM.run(3000)
 print(TM.model)
