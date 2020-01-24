@@ -1,5 +1,5 @@
 import numpy as np
-import timeit
+import time
 
 class OsloModel(object):
     """OsloModel as specified by the project guidelines.
@@ -86,17 +86,13 @@ class OsloModel(object):
 
         return
 
-def test():
-    OM = OsloModel(128)
-    OM.run(1000)
-    return
-
 
 if __name__ == "__main__":
 
-    #OM = OsloModel(128)
-    #OM.run(100000)
-    print(timeit.timeit("test()", setup="from __main__ import test"), number = 1)
-    print(OM.model)
+    start = time.time()
+    OM = OsloModel(64)
+    OM.run(100000)
+    end = time.time()
+    print(end-start)
     #print(OM.slopes)
     #print(OM.crit_slopes)
