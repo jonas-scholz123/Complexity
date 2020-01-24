@@ -1,3 +1,4 @@
+import time
 import numpy as np
 
 class OsloModel(object):
@@ -93,9 +94,11 @@ class OsloModel(object):
         return
 
 if __name__ == "__main__":
+    start = time.time()
     OM = OsloModel(64)
     OM.run(100000)
-    OM.gen_slopes()
+    end = time.time()
+    print(end-start)
 
     #print(OM.model)
     #print(OM.slopes)
