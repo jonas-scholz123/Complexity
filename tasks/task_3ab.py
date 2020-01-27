@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 from model import OsloModel
 from logbin import logbin
 
+#standardise plots
+from plot import set_plot_defaults
+set_plot_defaults()
+
 def gather_data(system_sizes, total_iterations):
     avalanche_sizes_dict = {}
 

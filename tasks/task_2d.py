@@ -6,6 +6,10 @@ sys.path.append("..") #allows import from parent level
 import matplotlib.pyplot as plt
 from model import OsloModel
 
+#standardise plots
+from plot import set_plot_defaults
+set_plot_defaults()
+
 def get_processed_height(L, total_iterations, number_repetitions):
 
     height_arrays = []
@@ -25,26 +29,28 @@ def gather_data(system_sizes, total_iterations, number_repetitions):
     return processed_heights, avg_tcs
 
 def display_data(total_iterations, avg_tcs, processed_heights, tau = 1/2):
-    for L in avg_tcs.keys():
+    for L in list(avg_tcs.keys())[1:] + [2]: #have 2 at end to stay consistent in colourscheme
         tc = avg_tcs[L]
         processed_height = processed_heights[L]
         t = np.logspace(0, np.log10(total_iterations), 50, dtype = int) #ensures even spacing of datapoints in log log plot
 
         x = t/tc
         y = 1/(t**(tau)) * processed_height[t - 1]
-        plt.loglog(x, y, "x", label = "L " + str(L))
-    plt.grid()
+        plt.loglog(x, y, "", label = "L = " + str(L))
+    plt.title("Scaling Function $\mathcal{F}(t/t_c)$ vs scaled time $t/t_c$")
+    plt.xlabel("$t/t_c$")
+    plt.ylabel("$\mathcal{F}(t/t_c)$")
     plt.legend()
+    plt.grid()
     plt.show()
     return
 
 
-total_iterations   = 100000
-number_repetitions = 1 #number of simulation runs at every L to obtain processed height
-system_sizes       = [2, 4, 8, 16, 32, 64, 128]
+total_iterations   = 90000
+number_repetitions = 5 #number of simulation runs at every L to obtain processed height
+system_sizes       = [2, 4, 8, 16, 32, 64, 128, 256]
 
 processed_heights, avg_tcs = gather_data(system_sizes, total_iterations, number_repetitions)
-print(processed_heights[16])
 
 #for tau in [0.5, 0.55, 0.6]:
 #    display_data(total_iterations, avg_tcs, processed_heights, tau = tau)

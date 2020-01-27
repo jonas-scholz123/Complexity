@@ -6,6 +6,10 @@ sys.path.append("..") #allows import from parent level
 import matplotlib.pyplot as plt
 from model import OsloModel
 
+#standardise plots
+from plot import set_plot_defaults
+set_plot_defaults()
+
 def gather_data(system_sizes, total_iterations):
     height_std_devs      = {}
 

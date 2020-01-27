@@ -1,10 +1,15 @@
 import sys
 import numpy as np
 import pandas as  pd
+from scipy.optimize  import curve_fit
 
 sys.path.append("..") #allows import from parent level
 import matplotlib.pyplot as plt
 from model import OsloModel
+
+#standardise plots
+from plot import set_plot_defaults
+set_plot_defaults()
 
 def gather_data(system_sizes, total_iterations):
     avalanche_sizes_dict = {}
@@ -53,8 +58,15 @@ def estimate_crit_exponents(df, show_plots = False):
 
         fit = np.polyfit(log_L, log_kth_moments, 1)
         if show_plots:
+            plt.figure(figsize = (12, 8))
             plt.plot(log_L, log_kth_moments, "x")
             plt.plot(log_L, fit[1]+fit[0]*log_L)
+            plt.show()
+
+            fit_data = linear(log_L, fit[1], fit[0])
+            deltas = log_kth_moments - fit_data
+            print("deltas: ", deltas)
+            plt.plot(log_L, deltas , "x")
             plt.show()
 
         k_exponents[k] = fit[0]
@@ -73,13 +85,57 @@ def estimate_crit_exponents(df, show_plots = False):
 
     return (2*fit[1] -1)/(fit[1] - 1), fit[0]
 
-def estimate_correction(df):
+#def estimate_correction(df, tau, D):
+#    ''' Estimate Correction to scaling, gamma'''
+#    tau = 1.55
+#    D = 9/4
+#    for gamma in [0.3, 0.35, 0.4, 0.45, 0.5]:
+#        for k in df.index:
+#            Ls = df.columns
+#            xs = (1/Ls)**gamma
+#            kth_moments = df.loc[k, 0:].values
+#
+#            ys = kth_moments/(Ls**((k + 1 - tau)*D))
+#            plt.plot(xs, ys, "x", label = "k = " + str(k))
+#            plt.suptitle(str(gamma))
+#            plt.legend()
+#            plt.show()
+
+def estimate_correction(df, tau, D):
     ''' Estimate Correction to scaling, gamma'''
+    tau = 1.55
+    D = 9/4
+    for k in df.index:
+        Ls = df.columns
+        #xs = (1/Ls)**gamma
+        kth_moments = df.loc[k, 0:].values
 
+        ys = kth_moments/(Ls**((k + 1 - tau)*D))
+        plt.loglog(Ls, kth_moments, "x", label = "k = " + str(k))
+    plt.legend()
+    plt.show()
 
+def corrected_log_power_law(L, k, A, tau, c_1, gamma):
+    return np.log10(A) + ((k + 1 - tau)/(2 - tau)) * np.log10(L) + np.log10(1 + c_1/(L**gamma))
 
-#system_sizes = [4, 8, 16, 32, 64, 128]
-system_sizes = [8, 16, 32, 64]
+def estimate_correction(df, tau, D):
+    ''' Estimate Correction to scaling, gamma'''
+    tau = 1.55
+    D = 9/4
+    for k in df.index:
+        Ls = np.array(df.columns.to_list())
+        ks = np.array([k for i in Ls])
+        kth_moments = df.loc[k, 0:].values
+        log_kth_moments = np.log10(kth_moments)
+        plt.plot(Ls, log_kth_moments)
+        plt.plot(Ls, corrected_log_power_law(Ls, ks, A = 1, tau = 1.55, c_1 = 0.0, gamma = 0.4))
+        plt.show()
+
+        #fit, cov = curve_fit(corrected_log_power_law, (Ls, ks), log_kth_moments, p0 = [1, 1.55, 0.1, 0.4])
+        #print(fit)
+
+system_sizes = [4, 8, 16, 32, 64, 128]
+#system_sizes = [8, 16, 32, 64]
 ks = [1, 2, 3, 4]
 total_iterations = 50000
 repetitions = 5
@@ -87,4 +143,5 @@ repetitions = 5
 #avalanche_sizes_dict = gather_data(system_sizes, total_iterations)
 
 L_k_moments = calculate_L_k_data(system_sizes, avalanche_sizes_dict)
-estimate_crit_exponents(L_k_moments)
+tau, D = estimate_crit_exponents(L_k_moments, show_plots = True)
+#estimate_correction(L_k_moments, tau, D)
