@@ -18,6 +18,7 @@ class OsloModel(object):
         self.first_drop_time = None
         self.height_over_time = []
         self.avalanche_sizes = []
+        self.stop_at_first_drop = False
 
         for i in range(self.size):
             self.gen_crit_slope(i)
@@ -90,6 +91,9 @@ class OsloModel(object):
         for i in range(total_iterations):
             self.record_height()
             self.drive()
+            if self.stop_at_first_drop and self.first_drop_time:
+                #in tasks that dont require the steady state, stop at t=tc
+                break
 
         return
 
