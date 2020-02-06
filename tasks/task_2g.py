@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import pickle
 from scipy.optimize import curve_fit
 from task_2f import get_height_std_dev
 from task_2e import get_mean_height
@@ -18,8 +19,11 @@ def gather_data(system_sizes, total_iterations):
     mean_heights         = {}
 
     for L in system_sizes:
-        OM = OsloModel(L)
-        OM.run(total_iterations)
+        #OM = OsloModel(L)
+        #OM.run(total_iterations)
+        name = "OM_"+str(L)+".pkl"
+        with open(name, 'rb') as input:
+            OM = pickle.load(input)
 
         height_probabilities[L] = get_height_probability(OM)
         height_std_devs[L]      = get_height_std_dev(OM)
@@ -37,7 +41,12 @@ def display_data(datapoints):
     for L in datapoints.keys():
         heights = list(datapoints[L].keys())
         counts  = list(datapoints[L].values())
-        plt.plot(heights, counts, "x")
+        plt.plot(heights, counts, label = "L = " + str(L))
+    plt.legend()
+    plt.grid()
+    plt.title("Unaltered height probability distribution, P(h;L)")
+    plt.xlabel(r"$h$", fontsize = "16")
+    plt.ylabel(r"$P(h;L)$")
     plt.show()
     return
 
@@ -55,16 +64,18 @@ def modify_data(height_probabilities_dict, height_std_devs, mean_heights):
         #collapsed_x = (original_x - mean_heights[L])
         collapsed_y = original_y/max(original_y)
 
-        plt.plot(collapsed_x, collapsed_y, "x", label = "L = " + str(L))
+        plt.plot(collapsed_x, collapsed_y, "x", label = "L = " + str(L), markersize = 8)
     plt.legend()
-    plt.xlabel("$h - <h>_t$ in $\sigma_h$", fontsize = "16")
+    plt.grid()
+    plt.title("Collapsed Distribution of P(h;L) at different L")
+    plt.xlabel(r"$h - <h>_t$ in units of $\sigma_h$", fontsize = "16")
+    plt.ylabel(r"$P(h;L)/P_{max}$")
     plt.show()
     return
 
-system_sizes = [4, 8, 16, 32, 64, 128]
+system_sizes = [4, 8, 16, 32, 64, 128, 256]
 total_iterations = 20000
 height_probabilities, height_std_devs, mean_heights= gather_data(system_sizes, total_iterations)
 
-#%%
 display_data(height_probabilities)
 modify_data(height_probabilities, height_std_devs, mean_heights)
