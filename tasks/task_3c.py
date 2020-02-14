@@ -54,6 +54,7 @@ def estimate_crit_exponents(df, show_plots = False):
     k_exponents = {}
     #stores values of the scaling exponent of L, (k+1-tau_s)D for various k
 
+    # show kth moments
     for k in df.index:
         kth_moments = df.loc[k, 0:].values
         L = df.columns
@@ -67,21 +68,9 @@ def estimate_crit_exponents(df, show_plots = False):
         if show_plots:
             #plt.plot(log_L, log_kth_moments, "x")
             #plt.plot(log_L, fit[1]+fit[0]*log_L)
-            #plt.show()
-            #colour = "C"+str(k-1)
-            #plt.loglog(L, kth_moments, colour+"x", label = "k = " + str(k))
-            #plt.loglog(L, 10**fit[1]* L**fit[0], colour, label = "Fit for k = " + str(k))
-
-            colour = "C"+str(k - 1)
-            fit_data = linear(log_L, fit[1], fit[0])
-            deltas = log_kth_moments - fit_data
-            plt.plot(log_L, deltas , "x", label = "k = " + str(k))
-            plt.plot(log_L, deltas, ":"+colour)
-    plt.grid()
-    plt.title(r"Deviation of measured $\log_{10} \langle s^k \rangle$ from fit vs $\log_{10}L$")
-    plt.xlabel(r"$\log_{10}L$")
-    plt.ylabel(r"$\log_{10}\langle s^k \rangle - \log{10}\langle s^k_{fit} \rangle$")
-    plt.show()
+            colour = "C"+str(k-1)
+            plt.loglog(L, kth_moments, colour+"x", label = "k = " + str(k))
+            plt.loglog(L, 10**fit[1]* L**fit[0], colour, label = "Fit for k = " + str(k))
 
     if show_plots:
         plt.grid()
@@ -90,6 +79,33 @@ def estimate_crit_exponents(df, show_plots = False):
         plt.xlabel(r"$L$")
         plt.ylabel(r"$\langle s^k \rangle $")
         plt.show()
+
+    #show deviations from fit
+    for k in df.index:
+        kth_moments = df.loc[k, 0:].values
+        L = df.columns
+
+        log_kth_moments = np.log10(kth_moments)
+        log_L = np.log10(L)
+
+        fit = np.polyfit(log_L, log_kth_moments, 1)
+        k_exponents[k] = fit[0]
+
+        if show_plots:
+            colour = "C"+str(k - 1)
+            fit_data = linear(log_L, fit[1], fit[0])
+            deltas = log_kth_moments - fit_data
+            plt.plot(log_L, deltas , "x", label = "k = " + str(k))
+            plt.plot(log_L, deltas, ":"+colour)
+
+    if show_plots:
+        plt.grid()
+        plt.title(r"Deviation of measured $\log_{10} \langle s^k \rangle$ from fit vs $\log_{10}L$")
+        plt.xlabel(r"$\log_{10}L$")
+        plt.ylabel(r"$\log_{10}\langle s^k \rangle - \log{10}\langle s^k_{fit} \rangle$")
+        plt.legend()
+        plt.show()
+
 
     ks = np.array(list(k_exponents.keys()))
     exponents = np.array(list(k_exponents.values()))
@@ -126,17 +142,9 @@ def estimate_crit_exponents_through_ratios(df):
 
         D, a = np.polyfit(logL, log_ratios, 1)
         print("k = ", k, " implies D = ", D)
+        print("a = ", a)
 
-        y = ratios/(L**D)
-        x = 1/(logL ** omega)
-
-        plt.plot(x, y, "x")
-
-
-        #plt.plot(logL, log_ratios, "x")
-        #plt.plot(logL, a + D*logL, "")
-    plt.show()
-    return
+    return D
 
 def power_law(L, a, gamma):
     return a * L ** gamma
@@ -155,7 +163,8 @@ def display_kth_moment_scaling(L_k_moments):
     plt.show()
 
 def estimate_correction(df, tau, D):
-    ''' Estimate Correction to scaling, gamma'''
+    '''NOT USED IN REPORT Estimate Correction to scaling, gamma'''
+
     tau = 1.55
     D = 9/4
     for gamma in [-0.1, 0.0, 0.05, 0.1, 0.7]:
@@ -171,24 +180,11 @@ def estimate_correction(df, tau, D):
         plt.legend()
         plt.show()
 
-#def estimate_correction(df, tau, D):
-    #''' Estimate Correction to scaling'''
-    #tau = 1.55
-    #D = 9/4
-    #for k in df.index:
-        #Ls = df.columns
-        ##xs = (1/Ls)**gamma
-        #kth_moments = df.loc[k, 0:].values
-#
-        #ys = kth_moments/(Ls**((k + 1 - tau)*D))
-        #plt.loglog(Ls, kth_moments, "x", label = "k = " + str(k))
-    #plt.legend()
-    #plt.show()
-
 def corrected_log_power_law(L, k, A, tau, c_1, gamma):
     return np.log10(A) + ((k + 1 - tau)/(2 - tau)) * np.log10(L) + np.log10(1 + c_1/(L**gamma))
 
 def show_corrections(system_sizes, all_tau, all_D):
+    ''' Use different L ranges to visualise finite size corrections'''
     nr_included = 3
     beginning_index_range = range(0, len(system_sizes) - nr_included + 1)
 
@@ -205,7 +201,6 @@ def show_corrections(system_sizes, all_tau, all_D):
         Ds.append(D)
         Ls.append(partial_system_sizes)
         #estimate_correction(L_k_moments, tau, D)
-        print(tau, D)
 
     max_Ls = [max(L) for L in Ls]
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex = True)
@@ -223,22 +218,6 @@ def show_corrections(system_sizes, all_tau, all_D):
     fig.suptitle(r"$\tau_s$ and D over different ranges of L")
     plt.show()
 
-#def estimate_correction(df, tau, D):
-    #''' Estimate Correction to scaling, gamma'''
-    #tau = 1.55
-    #D = 9/4
-    #for k in df.index:
-        #Ls = np.array(df.columns.to_list())
-        #ks = np.array([k for i in Ls])
-        #kth_moments = df.loc[k, 0:].values
-        #log_kth_moments = np.log10(kth_moments)
-        #plt.plot(Ls, log_kth_moments)
-        #plt.plot(Ls, corrected_log_power_law(Ls, ks, A = 1, tau = 1.55, c_1 = 0.0, gamma = 0.4))
-        #plt.show()
-
-        #fit, cov = curve_fit(corrected_log_power_law, (Ls, ks), log_kth_moments, p0 = [1, 1.55, 0.1, 0.4])
-        #print(fit)
-
 system_sizes = [4, 8, 16, 32, 64, 128, 256, 512]
 ks = [1, 2, 3, 4]
 total_iterations = 50000
@@ -249,7 +228,6 @@ repetitions = 5
 avalanche_sizes_dict = gather_data(system_sizes, total_iterations)
 L_k_moments = calculate_L_k_data(system_sizes, avalanche_sizes_dict)
 tau, D = estimate_crit_exponents(L_k_moments, show_plots = True)
-#estimate_crit_exponents_through_ratios(L_k_moments)
-#print(tau, D)
+D2 = estimate_crit_exponents_through_ratios(L_k_moments)
 show_corrections(system_sizes, tau, D)
 #estimate_correction(L_k_moments, tau, D)

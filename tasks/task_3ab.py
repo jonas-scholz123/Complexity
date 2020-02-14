@@ -45,7 +45,7 @@ avalanche_sizes_dict = gather_data(system_sizes, total_iterations)
 display_data(avalanche_sizes_dict, scale = 1.3)
 
 
-#%% 3b)
+# 3b)
 ''' Estimate tau for large system sizes, in linear region of log log plot'''
 
 def power_law(s, A, tau):
@@ -83,35 +83,29 @@ avalanche_sizes_dict = gather_data(system_sizes, 100000)
 tau_0 = estimate_tau(avalanche_sizes_dict[max(system_sizes)])#estimate tau based on largest L
 
 #iterate over range of taus around tau_0 to find best collapse by inspection
-tau_range = np.linspace(0.95 * tau_0, 1.05 * tau_0, 20)
+#tau_range = np.linspace(0.95 * tau_0, 1.05 * tau_0, 20)
 #for tau in tau_range:
-    ##fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
-    #for L in system_sizes:
-        #x, y = logbin(avalanche_sizes_dict[L], scale = 1.3 + L/512, zeros = False)
+#    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+#    for L in system_sizes:
+#        x, y = logbin(avalanche_sizes_dict[L], scale = 1.3 + L/512, zeros = False)
 #
-        ##fit_x = np.logspace(0, np.log10(max(x)), 50)
-        ##plt.loglog(x, y, "x")
-        ##plt.loglog(fit_x, power_law(fit_x, A, tau))
-        ##plt.show()
+#        #fit_x = np.logspace(0, np.log10(max(x)), 50)
+#        #plt.loglog(x, y, "x")
+#        #plt.loglog(fit_x, power_law(fit_x, A, tau))
+#        #plt.show()
 #
-        #collapsed_x, collapsed_y = modify_data(x, y, tau=tau, L = L)
-        #plt.loglog(collapsed_x, collapsed_y, "x", label = "L = " + str(L))
-    #plt.suptitle("tau = " + str(tau)[0:5])
-    #plt.grid()
-    #plt.legend()
-    #plt.show()
-#%%
+#        collapsed_x, collapsed_y = modify_data(x, y, tau=tau, L = L)
+#        plt.loglog(collapsed_x, collapsed_y, "x", label = "L = " + str(L))
+#    plt.suptitle("tau = " + str(tau)[0:5])
+#    plt.grid()
+#    plt.legend()
+#    plt.show()
 
 tau_range = [1.5, 1.545, 1.59]
 fig, axes = plt.subplots(1, 3,sharey = True, figsize = (12, 6))
 for tau, axis in zip(tau_range, axes):
     for L in system_sizes:
         x, y = logbin(avalanche_sizes_dict[L], scale = 1.3 + L/512, zeros = False)
-
-        #fit_x = np.logspace(0, np.log10(max(x)), 50)
-        #plt.loglog(x, y, "x")
-        #plt.loglog(fit_x, power_law(fit_x, A, tau))
-        #plt.show()
 
         collapsed_x, collapsed_y = modify_data(x, y, tau=tau, L = L)
         axis.loglog(collapsed_x, collapsed_y, "x", label = "L = " + str(L))

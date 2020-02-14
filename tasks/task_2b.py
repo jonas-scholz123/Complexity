@@ -11,7 +11,7 @@ from model import OsloModel
 from plot import set_plot_defaults
 set_plot_defaults()
 
-system_sizes = [4, 8, 16, 32, 64, 128, 256]
+system_sizes = [4, 8, 16, 32, 64, 128, 256, 512]
 total_iterations = 100000
 
 def gather_data(system_sizes, total_iterations):
@@ -102,7 +102,8 @@ def display_beta_vs_system_size(max_system_size_vs_beta):
     plt.grid()
     plt.show()
 
-avg_tc_values, A, beta, max_system_size_vs_beta = gather_data(system_sizes, total_iterations)
-display_beta_vs_system_size(max_system_size_vs_beta)
-display_full_fit(avg_tc_values, A, beta)
-print(beta)
+if __name__ == "__main__":
+    avg_tc_values, A, beta, max_system_size_vs_beta = gather_data(system_sizes, total_iterations)
+    display_beta_vs_system_size(max_system_size_vs_beta)
+    display_full_fit(avg_tc_values, A, beta)
+    print(beta)

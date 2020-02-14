@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from model import OsloModel
 
 class TestModel(OsloModel):
+    ''' Verifies integrity of simulation'''
 
     def mass_conservation(self):
         return np.sum(self.model) + self.dropped_grains == self.time

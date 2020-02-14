@@ -15,9 +15,8 @@ def gather_data(system_sizes, total_iterations):
     average_heights      = {}
 
     for L in system_sizes:
-        #OM = OsloModel(L)
-        #OM.run(total_iterations)
 
+        # load OsloModel
         name = "OM_"+str(L)+".pkl"
         with open(name, 'rb') as input:
             OM = pickle.load(input)
