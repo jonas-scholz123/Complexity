@@ -15,11 +15,8 @@ def get_processed_height(L, total_iterations, number_repetitions):
 
     height_arrays = []
     for i in range(number_repetitions):
-        #OM = OsloModel(L)
-        #OM.run(total_iterations)
-        name = "OM_"+str(L)+".pkl"
-        with open(name, 'rb') as input:
-            OM = pickle.load(input)
+        OM = OsloModel(L)
+        OM.run(total_iterations)
         height_arrays.append(OM.height_over_time)
     return np.mean(height_arrays, axis = 0)
 
